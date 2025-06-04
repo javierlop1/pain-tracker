@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import PainHistoryItem from '@/components/PainHistoryItem';
 import { PainProvider, usePainContext } from '@/context/PainContext';
 import { getPainEntries } from '@/utils/storage';
@@ -8,16 +9,19 @@ import { PainEntry } from '@/types';
 function HistoryContent() {
   const { painEntries, setPainEntries, removePainEntry } = usePainContext();
 
-  useEffect(() => {
-    const loadEntries = async () => {
-      const entries = await getPainEntries();
-      if (entries) {
-        setPainEntries(entries);
-      }
-    };
+  // Refresh data when the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadEntries = async () => {
+        const entries = await getPainEntries();
+        if (entries) {
+          setPainEntries(entries);
+        }
+      };
 
-    loadEntries();
-  }, [setPainEntries]);
+      loadEntries();
+    }, [setPainEntries])
+  );
 
   const renderEmptyList = () => (
     <View style={styles.emptyContainer}>
